@@ -17,10 +17,10 @@ CarpetX::verbose = no
 
 CarpetX::xmin = -10
 CarpetX::ymin = -10
-CarpetX::zmin = 0
+CarpetX::zmin = -0.01
 CarpetX::xmax = +10
 CarpetX::ymax = +10
-CarpetX::zmax = +10
+CarpetX::zmax = +9.99
 
 CarpetX::ncells_x = 80
 CarpetX::ncells_y = 80

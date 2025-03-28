@@ -1,0 +1,58 @@
+#!/bin/bash 
+#SBATCH -J scalarwave      # Job name
+#SBATCH -o scalarwave.o%j  # Name of stdout output file
+#SBATCH -e scalarwave.e%j  # Name of stderr error file
+#SBATCH -p development     # Queue (partition) name
+#SBATCH -N 1               # Total # of nodes 
+#SBATCH -n 1               # Total # of mpi tasks (56 MPI ranks per node)
+#SBATCH -t 00:10:00        # Run time (hh:mm:ss)
+#SBATCH -A PHY22041        # Project/Allocation name (req'd if you have more than 1)
+
+# Any other commands must follow all #SBATCH directives...
+### ========= Modules ==============================
+module load intel/23.1.0 &&
+module load impi/21.9.0 &&
+module load gsl/2.7.1 &&
+module load phdf5/1.14.4 &&
+module load boost/1.86.0 &&
+module load petsc/3.22 &&
+module load papi/5.7.0 &&
+module load hwloc/1.11.13 &&
+module load cmake/3.24.2
+
+### ================================================
+
+### ========= shell commands =======================
+echo "Checking directory:"
+cd $SCRATCH
+pwd
+
+### ================================================
+
+### ========= Execution ============================
+# Job name
+RUNNAME=$SLURM_JOB_NAME
+
+# ETK executable
+CACTUS=$WORK/ETK_CanudaX_tutorial/Cactus/exe/cactus_my_canudax
+
+# Parameter file
+PAR=$HOME/CanudaX_tutorial/parfiles/twopunctures_initialdata.par
+
+echo "Starting:"
+date
+export CACTUS_STARTTIME=$(date +%s)
+
+# Set thread count per MPI rank (default value is 1)...
+export OMP_NUM_THREADS=56
+
+# Launch MPI code... 
+# Use ibrun instead of mpirun or mpiexec 
+time ibrun $CACTUS $PAR >& $RUNNAME.$SLURM_JOB_ID.log
+
+echo "Stopping:"
+date
+
+echo "Done."
+
+### ================================================

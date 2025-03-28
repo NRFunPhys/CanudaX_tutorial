@@ -1,0 +1,46 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=16   # <- match to OMP_NUM_THREADS
+#SBATCH --partition=cpu      # <- or one of: gpuA100x4 gpuA40x4 gpuA100x8 gpuMI100x8
+#SBATCH --account=bcvu-delta-cpu
+#SBATCH --job-name=scalarwave
+#SBATCH --time=00:10:00      # hh:mm:ss for the job
+#SBATCH --constraint="scratch"
+
+date
+
+module reset # drop modules and explicitly load the ones needed
+             # (good job metadata and reproducibility)
+             # $WORK and $SCRATCH are now set
+module reset 2>/dev/null &&
+module load cmake/3.27.9
+export PATH=${CMAKE_HOME}/bin:$PATH
+module reset 2>/dev/null &&
+module load default-s11 &&
+module load cue-login-env/1.0 &&
+module load slurm-env/0.1 &&
+module load cuda/11.8.0 &&
+module load gcc/11.4.0 &&
+module load openmpi/4.1.6 &&
+module load gsl/2.7.1 &&
+module load openblas/0.3.25 &&
+module load fftw/3.3.10 &&
+module load boost/1.83.0
+module list  # job documentation and metadata
+echo "job is starting on `hostname`"
+
+CACTUS=/projects/bcvu/chcheng3/ETK_CanudaX_tutorial/Cactus/exe/cactus_my_canudax
+
+PAR=~/CanudaX_tutorial/parfiles/scalarwave.par
+
+cd /scratch/bcvu/chcheng3
+
+export OMP_NUM_THREAD=$SLURM_CPUS_PER_TASK
+export SRUN_CPUS_PER_TASK=$SLURM_CPUS_PER_TASK
+echo $OMP_NUM_THREAD
+echo $SRUN_CPUS_PER_TASK
+
+srun $CACTUS $PAR >& $SLURM_JOB_NAME.$SLURM_JOB_ID.out
+
+echo Done.

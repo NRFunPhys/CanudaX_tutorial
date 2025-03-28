@@ -1,0 +1,179 @@
+
+#------------------------------------------------------------------------------
+ActiveThorns = "
+  ADMBaseX
+  CanudaX_BSSNMoL
+  CarpetX
+  CarpetXRegrid
+  CoordinatesX
+  ODESolvers
+  IOUtil
+  TimerReport
+  TmunuBaseX
+  TwoPuncturesX
+"
+#------------------------------------------------------------------------------
+
+
+# Grid setup
+#------------------------------------------------------------------------------
+Cactus::cctk_show_schedule = yes
+
+Cactus::presync_mode = "mixed-error"
+
+CarpetX::poison_undefined_values = no
+CarpetX::kernel_launch_method = "default"
+CarpetX::verbose        = no
+
+CarpetX::xmin = -5.0
+CarpetX::ymin = -5.0
+CarpetX::zmin = -5.0
+
+CarpetX::xmax = +5.0
+CarpetX::ymax = +5.0
+CarpetX::zmax = +5.0
+
+CarpetX::ncells_x = 40
+CarpetX::ncells_y = 40
+CarpetX::ncells_z = 40
+
+CarpetX::boundary_x = "linear extrapolation"
+CarpetX::boundary_y = "linear extrapolation"
+CarpetX::boundary_z = "linear extrapolation"
+
+CarpetX::boundary_upper_x = "linear extrapolation"
+CarpetX::boundary_upper_y = "linear extrapolation"
+CarpetX::boundary_upper_z = "linear extrapolation"
+
+# Courant factor
+CarpetX::dtfac = 0.5
+
+# Mesh refinement
+CarpetX::max_num_levels         = 4
+CarpetX::regrid_every           = 1
+Driver::regrid_error_threshold = 0.10
+
+CarpetX::prolongation_type  = "ddf"
+CarpetX::prolongation_order = 5
+CarpetX::ghost_size     = 3
+
+# Initial Data
+#------------------------------------------------------------------------------
+
+ADMBaseX::initial_data                  = "twopunctures"
+ADMBaseX::initial_lapse                 = "psi^n"
+ADMBaseX::initial_shift                 = "zero"
+ADMBaseX::initial_dtlapse               = "zero"
+ADMBaseX::initial_dtshift               = "zero"
+
+# For initial lapse profile = \psi^{-2}, where psi=conformal factor
+TwoPuncturesX::initial_lapse_psi_exponent = -2.0
+
+# If yes: use bare mass parameters as input
+# If no: solve for bare masses until the ADM masses converge to their target
+TwoPuncturesX::give_bare_mass            = no
+TwoPuncturesX::adm_tol                   = 1e-10
+
+# Bare mass parameters
+TwoPuncturesX::par_M_plus                = 0.67
+TwoPuncturesX::par_M_minus               = 0.33
+
+# Target ADM mass
+TwoPuncturesX::target_M_plus             = 0.67
+TwoPuncturesX::target_M_minus            = 0.33
+
+# par_b = BH separation / 2
+TwoPuncturesX::par_b                     = 2.5
+TwoPuncturesX::center_offset[0]          = 0.0
+
+# cutoff values to avoid dividing by 0 or a very small number
+TwoPuncturesX::TP_epsilon                = 1e-6
+TwoPuncturesX::TP_Tiny                   = 1e-10
+
+TwoPuncturesX::npoints_A                 = 30
+TwoPuncturesX::npoints_B                 = 30
+TwoPuncturesX::npoints_phi               = 16
+TwoPuncturesX::Newton_maxit              = 10
+TwoPuncturesX::Newton_tol                = 1e-8
+
+
+# Evolution
+#------------------------------------------------------------------------------
+
+# Chioces for slicing condition: geodesic, harmonic, 1+log, shock-avoiding, slow-start lapse
+CanudaX_BSSNMoL::slicing_condition                  = "1+log"
+
+# Coefficient for RHS of the lapse evolution equation
+CanudaX_BSSNMoL::kappa_alpha                        = 2.0
+
+# Impose minimal value for conformal factor
+CanudaX_BSSNMoL::impose_conf_fac_floor_at_initial   = yes
+CanudaX_BSSNMoL::conf_fac_floor                     = 1.0d-04
+
+# Coefficients in RHS equations of the lapse and shift
+CanudaX_BSSNMoL::zeta_alpha                         = 1
+CanudaX_BSSNMoL::zeta_beta                          = 1
+CanudaX_BSSNMoL::eta_beta                           = 1
+CanudaX_BSSNMoL::beta_Gamma                         = 0.75
+CanudaX_BSSNMoL::chi_gamma                          = 0.667
+CanudaX_BSSNMoL::beta_Alp                           = 1
+
+# Enforce algebraic constraints
+CanudaX_BSSNMoL::reset_dethh                        = yes
+CanudaX_BSSNMoL::make_aa_tracefree                  = yes
+
+# Use stress-energy tensor?
+CanudaX_BSSNMoL::stress_energy_state                = no
+
+# Finite difference stencils
+CanudaX_BSSNMoL::derivs_order                       = 4
+CanudaX_BSSNMoL::use_advection_stencils             = yes
+
+# Kreiss-Oliger dissipation
+CanudaX_BSSNMoL::add_KO_dissipation                 = yes
+CanudaX_BSSNMoL::diss_eps                           = 0.15
+CanudaX_BSSNMoL::diss_order                         = 5
+
+# CarpetX AMR criterion
+CanudaX_BSSNMoL::use_local_error_estimate           = yes
+CanudaX_BSSNMoL::refinement_criterion               = "conf_fac_minus_one"
+
+# Boundary conditions
+CanudaX_BSSNMoL::boundary_conditions                = "radiative"
+
+# Compute Hamiltonian and moentum constraints
+CanudaX_BSSNMoL::calculate_constraints              = yes
+CanudaX_BSSNMoL::calculate_constraints_every        = 32
+
+# Evolution
+#------------------------------------------------------------------------------
+
+ODESolvers::method = "RK4"
+
+# Output
+#-------------------------------------------------------------------------------
+CarpetX::out_silo_every = 32
+CarpetX::out_silo_vars = "
+  CarpetXRegrid::regrid_error
+  CanudaX_BSSNMoL::alpha
+  CanudaX_BSSNMoL::conf_fac
+  CanudaX_BSSNMoL::ham
+"
+
+CarpetX::out_norm_vars = CarpetX::out_tsv_vars
+
+
+IO::out_dir = $parfile
+IO::out_every = 32
+IO::out_mode = "np"
+IO::out_proc_every = 1
+
+TimerReport::out_every = 32
+TimerReport::out_filename = "TimerReport"
+TimerReport::output_schedule_timers = no
+TimerReport::n_top_timers = 20
+
+# Run termination
+#-------------------------------------------------------------------------------
+Cactus::terminate       = "iteration"
+Cactus::cctk_itlast     = 0

@@ -1,0 +1,64 @@
+ActiveThorns = "
+    CarpetX
+    ODESolvers
+    NewRadX
+    TestNewRadX
+"
+
+Cactus::presync_mode = "mixed-error"
+
+Cactus::terminate = "iteration"
+Cactus::cctk_itlast = 300
+
+CarpetX::ghost_size = 3
+CarpetX::prolongation_type = "ddf"
+CarpetX::prolongation_order = 1
+CarpetX::verbose = no
+
+CarpetX::xmin = -10
+CarpetX::ymin = -10
+CarpetX::zmin = 0
+CarpetX::xmax = +10
+CarpetX::ymax = +10
+CarpetX::zmax = +10
+
+CarpetX::ncells_x = 80
+CarpetX::ncells_y = 80
+CarpetX::ncells_z = 40
+
+CarpetX::boundary_x = "linear extrapolation"
+CarpetX::boundary_y = "linear extrapolation"
+CarpetX::boundary_z = "none"
+CarpetX::boundary_upper_x = "linear extrapolation"
+CarpetX::boundary_upper_y = "linear extrapolation"
+CarpetX::boundary_upper_z = "linear extrapolation"
+
+CarpetX::reflection_x = "no"
+CarpetX::reflection_y = "no"
+CarpetX::reflection_z = "yes"
+
+CarpetX::dtfac = 0.25
+
+TestNewRadX::test_use_newradx     = yes
+TestNewRadX::test_add_dissipation = yes
+TestNewRadX::eps_dissipation      = 0.2
+TestNewRadX::n_falloff            = 2.0
+TestNewRadX::gaussian_a0          = 1.0
+TestNewRadX::gaussian_w0          = 0.5
+TestNewRadX::gaussian_x0          = 3.0
+TestNewRadX::gaussian_y0          = 4.0
+TestNewRadX::gaussian_z0          = 0.0
+
+IO::parfile_write = "no"
+IO::out_fileinfo = "axis labels"
+
+IO::out_dir = $parfile
+IO::out_every = 30
+
+CarpetX::out_metadata = no
+CarpetX::out_silo_vars = "
+  TestNewRadX::uu
+  TestNewRadX::vv
+  TestNewRadX::uu_err
+  TestNewRadX::vv_err
+"
